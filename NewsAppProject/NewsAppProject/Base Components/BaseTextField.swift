@@ -9,7 +9,13 @@ import Foundation
 import UIKit
 
 class BaseTextField: UITextField {
-    func prepareTextField() {
+    func prepareLightGrayTextField() {
+        lightGrayBackground()
+        prepareCornerRadius(radius: 5)
+    }
+    
+    func prepareWhiteTextField() {
+        whiteBackground()
         prepareCornerRadius(radius: 5)
     }
 }

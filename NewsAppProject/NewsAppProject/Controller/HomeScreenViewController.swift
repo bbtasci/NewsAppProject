@@ -8,18 +8,19 @@
 import UIKit
 import Alamofire
 
-class HomeScreenViewController: UIViewController {
+class HomeScreenViewController: BaseViewController {
     
     // MARK: - OUTLETS
     
     @IBOutlet weak var logoImageView: UIImageView!
-    @IBOutlet weak var readingListButton: UIButton!
+    @IBOutlet weak var readingListButton: BaseButton!
     @IBOutlet weak var categoryTextField: BaseTextField!
-    @IBOutlet weak var newsChannelsTableView: UITableView!
+    @IBOutlet weak var newsChannelsTableView: BaseTableView!
     
     // MARK: - PROPERTIES
     
-    var categoryList = ["business", "entertainment", "general", "health", "science", "sports", "technology"]
+//    var activityView : UIActivityIndicatorView = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50)) as UIActivityIndicatorView
+    var categoryList = ["all categories","business", "entertainment", "general", "health", "science", "sports", "technology"]
     var categoryPickerView = ToolbarPickerView()
     var newsList = NewsApiModel()
     
@@ -29,16 +30,25 @@ class HomeScreenViewController: UIViewController {
         super.viewDidLoad()
         prepareUI()
         getNewsChannelsFromAPI()
+        addActivityIndicator()
     }
     
     // MARK: - PREPARE UI
     
     func prepareUI() {
         prepareCategoryPickerView()
-        readingListButton.setTitle("READING LIST", for: .normal)
-        prepareNavigationItems(title: "WORLD NEWS", backButtonTitle: "Home")
+        prepareTableView()
+        prepareLayers()
     }
     
+    func prepareLayers() {
+        prepareNavigationItems(title: "WORLD NEWS", backButtonTitle: "Home")
+        readingListButton.prepareLightGrayButton()
+        readingListButton.setButtonTitleAndSize(title: "READING LIST", titleSize: 20)
+        categoryTextField.prepareLightGrayTextField()
+        categoryTextField.placeholder = "Choose Category"
+        newsChannelsTableView.prepareLightGrayTableView()
+    }
     func prepareCategoryPickerView() {
         categoryTextField.inputView = categoryPickerView
         categoryTextField.inputAccessoryView = categoryPickerView.toolbar
@@ -47,13 +57,25 @@ class HomeScreenViewController: UIViewController {
         categoryPickerView.toolbarDelegate = self
     }
     
+    func prepareTableView() {
+        newsChannelsTableView.delegate = self
+        newsChannelsTableView.dataSource = self
+        newsChannelsTableView.separatorColor = .black
+        newsChannelsTableView.separatorStyle = .singleLine
+        newsChannelsTableView.register(UINib(nibName: "NewsChannelsTableViewCell", bundle: nil), forCellReuseIdentifier: "NewsChannelsTableViewCell")
+        newsChannelsTableView.reloadData()
+    }
+        
     // MARK: - SERVICE CALL
     
     func getNewsChannelsFromAPI() {
+        activityView.startAnimating()
         AF.request("https://newsapi.org/v2/sources?language=en&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
             if let channelsData = response.data {
                 let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
                 self.newsList.sources = newsChannelsList.sources
+                self.newsChannelsTableView.reloadData()
+                self.activityView.stopAnimating()
             }
         }
     }
@@ -72,7 +94,7 @@ class HomeScreenViewController: UIViewController {
 extension HomeScreenViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        1
+        return 1
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -86,25 +108,19 @@ extension HomeScreenViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "NewsChannelsTableViewCell") as? NewsChannelsTableViewCell {
             cell.setCell(item: newsList.sources[indexPath.row])
+            cell.backgroundColor = .clear
             return cell
         }
-        
         return UITableViewCell()
     }
     
-    /*
-     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-         if let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell") as? CartTableViewCell {
-             cell.setCartCell(item: Singleton.shared.printedGame[indexPath.row])
-             cell.delegate = self
-             return cell
-         }
-         
-         return UITableViewCell()
-     }
-     */
-
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let newsPageViewController = storyboard.instantiateViewController(identifier: "NewsPageViewController") as! NewsPageViewController
+        newsPageViewController.companyId = self.newsList.sources.first?.id ?? ""
+        newsPageViewController.companyName = self.newsList.sources.first?.name ?? ""
+        self.navigationController?.pushViewController(newsPageViewController, animated: true)
+    }
 }
 
 // MARK: - UIPICKERVIEW DELEGATE AND DATASOURCE METHODS

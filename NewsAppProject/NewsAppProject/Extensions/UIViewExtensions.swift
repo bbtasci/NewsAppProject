@@ -13,4 +13,16 @@ extension UIView {
         self.layer.cornerRadius = radius
         self.layer.masksToBounds = true
     }
+    
+    func darkBackground() {
+        self.backgroundColor = .black
+    }
+    
+    func lightGrayBackground() {
+        self.backgroundColor = .lightGray
+    }
+    
+    func whiteBackground() {
+        self.backgroundColor = .white
+    }
 }
