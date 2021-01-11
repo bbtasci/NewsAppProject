@@ -41,6 +41,7 @@ class RemainingNewsTableViewCell: UITableViewCell {
     }
     
     @IBAction func readListActionButtonTouched(_ sender: Any) {
+        // add to reading list
     }
     
 }

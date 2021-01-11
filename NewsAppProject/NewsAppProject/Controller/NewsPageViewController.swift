@@ -70,6 +70,7 @@ class NewsPageViewController: BaseViewController {
             }
         }
     }
+    
 }
 
 // MARK: - UITABLEVIEW DELEGATE AND DATASOURCE METHODS

@@ -19,8 +19,7 @@ class HomeScreenViewController: BaseViewController {
     
     // MARK: - PROPERTIES
     
-//    var activityView : UIActivityIndicatorView = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50)) as UIActivityIndicatorView
-    var categoryList = ["all categories","business", "entertainment", "general", "health", "science", "sports", "technology"]
+    var categoryList = ["all categories", "business", "entertainment", "general", "health", "science", "sports", "technology"]
     var categoryPickerView = ToolbarPickerView()
     var newsList = NewsApiModel()
     
@@ -29,9 +28,18 @@ class HomeScreenViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         prepareUI()
-        getNewsChannelsFromAPI()
+        newsChannelsTableView.reloadData()
+        getNews()
         addActivityIndicator()
     }
+    
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        prepareUI()
+//        addActivityIndicator()
+//        newsChannelsTableView.reloadData()
+//        getNews()
+//    }
     
     // MARK: - PREPARE UI
     
@@ -49,6 +57,7 @@ class HomeScreenViewController: BaseViewController {
         categoryTextField.placeholder = "Choose Category"
         newsChannelsTableView.prepareLightGrayTableView()
     }
+    
     func prepareCategoryPickerView() {
         categoryTextField.inputView = categoryPickerView
         categoryTextField.inputAccessoryView = categoryPickerView.toolbar
@@ -65,19 +74,44 @@ class HomeScreenViewController: BaseViewController {
         newsChannelsTableView.register(UINib(nibName: "NewsChannelsTableViewCell", bundle: nil), forCellReuseIdentifier: "NewsChannelsTableViewCell")
         newsChannelsTableView.reloadData()
     }
+    
+    func getTurkeyNews() {
+            activityView.startAnimating()
+            AF.request("https://newsapi.org/v2/top-headlines?country=tr&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+                if let channelsData = response.data {
+                    let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
+                    self.newsList.sources = newsChannelsList.sources
+                    self.newsChannelsTableView.reloadData()
+                    self.activityView.stopAnimating()
+                }
+            }
+    }
         
     // MARK: - SERVICE CALL
     
-    func getNewsChannelsFromAPI() {
-        activityView.startAnimating()
-        AF.request("https://newsapi.org/v2/sources?language=en&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
-            if let channelsData = response.data {
-                let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
-                self.newsList.sources = newsChannelsList.sources
-                self.newsChannelsTableView.reloadData()
-                self.activityView.stopAnimating()
+    func getNews() {
+        if categoryTextField.text == "" || categoryTextField.text?.lowercased() == "all categories"{
+            activityView.startAnimating()
+            AF.request("https://newsapi.org/v2/sources?language=en&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+                if let channelsData = response.data {
+                    let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
+                    self.newsList.sources = newsChannelsList.sources
+                    self.newsChannelsTableView.reloadData()
+                    self.activityView.stopAnimating()
+                }
+            }
+        } else {
+            activityView.startAnimating()
+            AF.request("https://newsapi.org/v2/sources?language=en&category=\(categoryTextField.text?.lowercased() ?? "")&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+                if let channelsData = response.data {
+                    let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
+                    self.newsList.sources = newsChannelsList.sources
+                    self.newsChannelsTableView.reloadData()
+                    self.activityView.stopAnimating()
+                }
             }
         }
+        
     }
     
     // MARK: - ACTIONS
@@ -152,10 +186,12 @@ extension HomeScreenViewController: ToolbarPickerViewDelegate {
         self.categoryPickerView.selectRow(categoryRow, inComponent: 0, animated: false)
         self.categoryTextField.text = self.categoryList[categoryRow].capitalized
         self.categoryTextField.resignFirstResponder()
+        self.newsChannelsTableView.reloadData()
+        self.getNews()
     }
     
     func didTapCancel() {
-        self.categoryTextField.text = nil
+        //self.categoryTextField.text = nil
         self.categoryTextField.resignFirstResponder()
     }
 }
