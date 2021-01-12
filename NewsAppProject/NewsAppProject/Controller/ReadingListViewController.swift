@@ -59,7 +59,7 @@ extension ReadingListViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Transporter.shared.shownList.count
+        return ReadingListConveyor.shared.shownList.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -67,8 +67,8 @@ extension ReadingListViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "RemainingNewsTableViewCell") as? RemainingNewsTableViewCell {
-            cell.setNewsCell(item: Transporter.shared.shownList[indexPath.row])
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "ReadingListTableViewCell") as? ReadingListTableViewCell {
+            cell.setListCell(item: ReadingListConveyor.shared.shownList[indexPath.row])
             return cell
         }
         return UITableViewCell()
@@ -77,16 +77,16 @@ extension ReadingListViewController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let detailPageViewController = storyboard.instantiateViewController(identifier: "DetailPageViewController") as! DetailPageViewController
-        detailPageViewController.newsTitle = Transporter.shared.shownList[indexPath.row].title
-        detailPageViewController.newsAuthor = Transporter.shared.shownList[indexPath.row].author
-        detailPageViewController.newsDate = Transporter.shared.shownList[indexPath.row].publishedAt
-        detailPageViewController.newsDescription = Transporter.shared.shownList[indexPath.row].description
-        detailPageViewController.newsImageUrl = Transporter.shared.shownList[indexPath.row].urlToImage
+        detailPageViewController.newsTitle = ReadingListConveyor.shared.shownList[indexPath.row].title
+        detailPageViewController.newsAuthor = ReadingListConveyor.shared.shownList[indexPath.row].author
+        detailPageViewController.newsDate = ReadingListConveyor.shared.shownList[indexPath.row].publishedAt
+        detailPageViewController.newsDescription = ReadingListConveyor.shared.shownList[indexPath.row].description
+        detailPageViewController.newsImageUrl = ReadingListConveyor.shared.shownList[indexPath.row].urlToImage
         self.navigationController?.pushViewController(detailPageViewController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-            readingList.articles.remove(at: indexPath.row)
+            ReadingListConveyor.shared.shownList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
     }
 }

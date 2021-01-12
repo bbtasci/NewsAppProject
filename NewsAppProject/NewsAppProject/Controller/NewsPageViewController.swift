@@ -13,7 +13,7 @@ class NewsPageViewController: BaseViewController {
     // MARK: - OUTLETS
     
     @IBOutlet weak var companyNameLabel: BaseLabel!
-    @IBOutlet weak var threeNewsCollectionView: UICollectionView!
+    @IBOutlet weak var topThreeHeadlinesPageController: UIPageControl!
     @IBOutlet weak var remainingNewsTableView: BaseTableView!
     
     // MARK: - PROPERTIES
@@ -22,7 +22,7 @@ class NewsPageViewController: BaseViewController {
     var companyId: String = ""
     var companyName: String = ""
     var newsListOfCompany = NewsCompanyModel()
-    //var cellArticle = Articles()
+    var frame: CGRect = CGRect(x:0, y:0, width:0, height:0)
     
     // MARK: - LIFE CYCLE METHODS
     
@@ -38,14 +38,85 @@ class NewsPageViewController: BaseViewController {
     func prepareUI() {
         prepareLayers()
         prepareTableView()
-        prepareCollectionView()
+        //prepareScrollView()
     }
     
     func prepareLayers() {
         prepareNavigationItem(title: "WORLD NEWS", backButtonTitle: "World News")
+        
         companyNameLabel.prepareLightGrayLabel()
         companyNameLabel.text = companyName
     }
+    
+//    func prepareScrollView() {
+//        configurePageController()
+//
+//        topThreeHeadlinesScrollView.delegate = self
+//        topThreeHeadlinesScrollView.isPagingEnabled = true
+//        self.view.addSubview(topThreeHeadlinesScrollView)
+//
+//        for index in 0..<4 {
+//
+//            frame.origin.x = self.topThreeHeadlinesScrollView.frame.size.width * CGFloat(index)
+//            frame.size = self.topThreeHeadlinesScrollView.frame.size
+//
+//            let subView = UIView(frame: frame)
+//            subView.backgroundColor = .brown
+//
+//
+//            //let newsImageUrl = self.newsListOfCompany.articles.first?.urlToImage
+//            //let url = URL(string: newsImageUrl ?? "")
+//            //let imageData = try? Data(contentsOf: url!)
+//            //subView.largeContentImage = UIImage(data: imageData!)
+//
+//
+//
+//            self.topThreeHeadlinesScrollView.addSubview(subView)
+//        }
+//
+//        self.topThreeHeadlinesScrollView.contentSize = CGSize(width:self.topThreeHeadlinesScrollView.frame.size.width * 4,height: self.topThreeHeadlinesScrollView.frame.size.height)
+//        topThreeHeadlinesPageController.addTarget(self, action: #selector(self.changePage(sender:)), for: UIControl.Event.valueChanged)
+//
+//    }
+//
+//    func configurePageController() {
+//        self.topThreeHeadlinesPageController.numberOfPages = newsListOfCompany.articles.count
+//        self.topThreeHeadlinesPageController.currentPage = 0
+//        self.topThreeHeadlinesPageController.tintColor = UIColor.red
+//        self.topThreeHeadlinesPageController.pageIndicatorTintColor = UIColor.black
+//        self.topThreeHeadlinesPageController.currentPageIndicatorTintColor = UIColor.green
+//        self.view.addSubview(topThreeHeadlinesPageController)
+//    }
+//
+//    @objc func changePage(sender: AnyObject) -> () {
+//        let x = CGFloat(topThreeHeadlinesPageController.currentPage) * topThreeHeadlinesScrollView.frame.size.width
+//        topThreeHeadlinesScrollView.setContentOffset(CGPoint(x:x, y:0), animated: true)
+//    }
+//
+//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//
+//        let pageNumber = round(topThreeHeadlinesScrollView.contentOffset.x / scrollView.frame.size.width)
+//        topThreeHeadlinesPageController.currentPage = Int(pageNumber)
+//    }
+//
+    
+    // MARK: - SERVICE CALL
+    
+    func getNewsChannelsFromAPI() {
+        activityView.startAnimating()
+        AF.request("https://newsapi.org/v2/top-headlines?sources=\(companyId)&apiKey=\(APIKEY)").responseJSON { response in
+            if let channelNewsData = response.data {
+                let newsListOfChannel = try! JSONDecoder().decode(NewsCompanyModel.self, from: channelNewsData)
+                self.newsListOfCompany.articles = newsListOfChannel.articles
+                self.remainingNewsTableView.reloadData()
+                self.activityView.stopAnimating()
+            }
+        }
+    }
+    
+    // MARK: - PREPARE SCROLL VIEW
+    
+
     
     // MARK: - PREPARE TABLE VIEW
     
@@ -58,30 +129,6 @@ class NewsPageViewController: BaseViewController {
         remainingNewsTableView.reloadData()
         remainingNewsTableView.prepareLightGrayTableView()
         
-    }
-    
-    // MARK: - PREPARE COLLECTION VIEW
-    
-    func prepareCollectionView() {
-        threeNewsCollectionView.delegate = self
-        threeNewsCollectionView.dataSource = self
-        threeNewsCollectionView.reloadData()
-        threeNewsCollectionView.prepareCornerRadius(radius: 5)
-    }
-    
-    // MARK: - SERVICE CALL
-    
-    func getNewsChannelsFromAPI() {
-        activityView.startAnimating()
-        AF.request("https://newsapi.org/v2/top-headlines?sources=\(companyId)&apiKey=\(APIKEY)").responseJSON { response in
-            if let channelNewsData = response.data {
-                let newsListOfChannel = try! JSONDecoder().decode(NewsCompanyModel.self, from: channelNewsData)
-                self.newsListOfCompany.articles = newsListOfChannel.articles
-                self.threeNewsCollectionView.reloadData()
-                self.remainingNewsTableView.reloadData()
-                self.activityView.stopAnimating()
-            }
-        }
     }
     
 }
@@ -114,6 +161,7 @@ extension NewsPageViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "RemainingNewsTableViewCell") as? RemainingNewsTableViewCell {
             cell.setNewsCell(item: newsListOfCompany.articles[indexPath.row])
+            cell.addedNews = newsListOfCompany.articles[indexPath.row]
             cell.backgroundColor = .lightGray
             return cell
         }
@@ -132,39 +180,58 @@ extension NewsPageViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension NewsPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return newsListOfCompany.articles.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let article = newsListOfCompany.articles[indexPath.row]
-        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ThreeNewsCollectionViewCell", for: indexPath) as? ThreeNewsCollectionViewCell {
-            cell.setCollectionCell(item: article)
-//            cell.layer.borderWidth = 0.5
-//            cell.layer.borderColor = UIColor.white.cgColor
-//            cell.layer.cornerRadius = 5
-//            cell.layer.masksToBounds = true
-            return cell
-        }
-        
-        return UICollectionViewCell()
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        //384 - 414
-        
-        let width = self.view.frame.width - 30
-        let height: CGFloat = 200.0
-        
-        return CGSize(width: width, height: height)
-    }
-    
-    
-}
+
+/*
+ 
+ func prepareScrollView() {
+     configurePageController()
+     
+     topThreeHeadlinesScrollView.delegate = self
+     topThreeHeadlinesScrollView.isPagingEnabled = true
+     self.view.addSubview(topThreeHeadlinesScrollView)
+     
+     for index in 0..<4 {
+
+         frame.origin.x = self.topThreeHeadlinesScrollView.frame.size.width * CGFloat(index)
+         frame.size = self.topThreeHeadlinesScrollView.frame.size
+
+         let subView = UIView(frame: frame)
+         subView.backgroundColor = .brown
+         
+         
+         let newsImageUrl = self.newsListOfCompany.articles.first?.urlToImage
+         let url = URL(string: newsImageUrl ?? "")
+         let imageData = try? Data(contentsOf: url!)
+         subView.largeContentImage = UIImage(data: imageData!)
+         
+         
+         
+         self.topThreeHeadlinesScrollView.addSubview(subView)
+     }
+
+     self.topThreeHeadlinesScrollView.contentSize = CGSize(width:self.topThreeHeadlinesScrollView.frame.size.width * 4,height: self.topThreeHeadlinesScrollView.frame.size.height)
+     topThreeHeadlinesPageController.addTarget(self, action: #selector(self.changePage(sender:)), for: UIControl.Event.valueChanged)
+
+ }
+
+ func configurePageController() {
+     self.topThreeHeadlinesPageController.numberOfPages = newsListOfCompany.articles.count
+     self.topThreeHeadlinesPageController.currentPage = 0
+     self.topThreeHeadlinesPageController.tintColor = UIColor.red
+     self.topThreeHeadlinesPageController.pageIndicatorTintColor = UIColor.black
+     self.topThreeHeadlinesPageController.currentPageIndicatorTintColor = UIColor.green
+     self.view.addSubview(topThreeHeadlinesPageController)
+ }
+
+ @objc func changePage(sender: AnyObject) -> () {
+     let x = CGFloat(topThreeHeadlinesPageController.currentPage) * topThreeHeadlinesScrollView.frame.size.width
+     topThreeHeadlinesScrollView.setContentOffset(CGPoint(x:x, y:0), animated: true)
+ }
+
+ func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+
+     let pageNumber = round(topThreeHeadlinesScrollView.contentOffset.x / scrollView.frame.size.width)
+     topThreeHeadlinesPageController.currentPage = Int(pageNumber)
+ }
+ 
+ */

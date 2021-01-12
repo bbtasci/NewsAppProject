@@ -33,9 +33,7 @@ class ReadingListTableViewCell: UITableViewCell {
     
     func prepareLayers() {
         listNewsImageView.prepareCornerRadius(radius: 5)
-        
         listNewsDateLabel.prepareLightGrayLabel()
-        
         listNewsDescriptionLabel.prepareLightGrayLabel()
     }
 

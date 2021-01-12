@@ -69,29 +69,19 @@ class HomeScreenViewController: BaseViewController {
         newsChannelsTableView.register(UINib(nibName: "NewsChannelsTableViewCell", bundle: nil), forCellReuseIdentifier: "NewsChannelsTableViewCell")
         newsChannelsTableView.reloadData()
     }
-    
-    func getTurkeyNews() {
-            activityView.startAnimating()
-            AF.request("https://newsapi.org/v2/top-headlines?country=tr&apiKey=\(APIKEY)").responseJSON { response in
-                if let channelsData = response.data {
-                    let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
-                    self.newsList.sources = newsChannelsList.sources
-                    self.newsChannelsTableView.reloadData()
-                    self.activityView.stopAnimating()
-                }
-            }
-    }
         
     // MARK: - SERVICE CALL
     
     func getNews() {
         if categoryTextField.text == "" || categoryTextField.text?.lowercased() == "all categories"{
             activityView.startAnimating()
+            blurredBackground()
             AF.request("https://newsapi.org/v2/sources?language=en&apiKey=\(APIKEY)").responseJSON { response in
                 if let channelsData = response.data {
                     let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
                     self.newsList.sources = newsChannelsList.sources
                     self.newsChannelsTableView.reloadData()
+                    self.disableBlur()
                     self.activityView.stopAnimating()
                 }
             }
@@ -181,7 +171,7 @@ extension HomeScreenViewController: ToolbarPickerViewDelegate {
         self.categoryPickerView.selectRow(categoryRow, inComponent: 0, animated: false)
         self.categoryTextField.text = self.categoryList[categoryRow].capitalized
         self.categoryTextField.resignFirstResponder()
-        self.newsChannelsTableView.reloadData()
+        //self.newsChannelsTableView.reloadData()
         self.getNews()
     }
     

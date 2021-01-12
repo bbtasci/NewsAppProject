@@ -9,13 +9,19 @@ import UIKit
 
 class RemainingNewsTableViewCell: UITableViewCell {
 
+    // MARK: - OUTLETS
+    
     @IBOutlet weak var readListActionButton: UIButton!
     @IBOutlet weak var newsImageView: UIImageView!
     @IBOutlet weak var newsDescriptionLabel: UILabel!
     @IBOutlet weak var newsDateLabel: UILabel!
     
+    // MARK: - PROPERTIES
+    
     weak var delegate: RemainingNewsTableViewCell?
-    var article: Articles?
+    var addedNews: Articles?
+    
+    // MARK: - LIFE CYCLE METHODS
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,6 +43,8 @@ class RemainingNewsTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
     
+    // MARK: - METHODS
+    
     func setNewsCell(item: Articles) {
         let url = URL(string: item.urlToImage ?? "")
         let imageData = try? Data(contentsOf: url!)
@@ -46,13 +54,20 @@ class RemainingNewsTableViewCell: UITableViewCell {
         newsDateLabel.text = String((item.publishedAt)?.prefix(10) ?? "")
     }
     
+    func addToReadingList() {
+        if ReadingListConveyor.shared.shownList.first(where: { $0.content == addedNews?.content }) != nil {
+            print("Already in list")
+        } else {
+            ReadingListConveyor.shared.shownList.append(addedNews!)
+        }
+    }
+    
+    // MARK: - ACTIONS
+    
     @IBAction func readListActionButtonTouched(_ sender: Any) {
-        //article?.urlToImage =
-        // add to reading list
-        //readListActionButton.layer.backgroundColor = UIColor.green.cgColor
-        //readListActionButton.setTitle("In Reading List", for: .normal)
-        //Transporter.shared.shownList.append(article!)
-       
+        addToReadingList()
+        readListActionButton.layer.backgroundColor = CGColor(red: 5/255, green: 182/255, blue: 0/255, alpha: 1)
+        readListActionButton.setTitle("In Reading List", for: .normal)
     }
     
 }

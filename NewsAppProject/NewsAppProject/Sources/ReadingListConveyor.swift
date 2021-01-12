@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Transporter {
-    static let shared = Transporter()
+class ReadingListConveyor {
+    static let shared = ReadingListConveyor()
     var shownList: [Articles] = []
 }

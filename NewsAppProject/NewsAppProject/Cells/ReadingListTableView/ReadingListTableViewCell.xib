@@ -54,13 +54,11 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="s1N-qs-IRT"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
                 <outlet property="listNewsDateLabel" destination="3YA-ev-c5r" id="7Hi-2m-awY"/>
                 <outlet property="listNewsDescriptionLabel" destination="XDT-de-HPM" id="DuM-SC-RqP"/>
                 <outlet property="listNewsImageView" destination="VaO-NT-WSr" id="RNe-xy-3HJ"/>
-                <outlet property="newsDateLabel" destination="3YA-ev-c5r" id="Wcp-xM-2hY"/>
-                <outlet property="newsDescriptionLabel" destination="XDT-de-HPM" id="yXu-xo-eqC"/>
-                <outlet property="newsImageView" destination="VaO-NT-WSr" id="SLp-Bo-KoK"/>
             </connections>
             <point key="canvasLocation" x="-105.07246376811595" y="86.383928571428569"/>
         </tableViewCell>
