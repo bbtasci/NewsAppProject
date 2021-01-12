@@ -9,5 +9,5 @@ import Foundation
 
 class Transporter {
     static let shared = Transporter()
-    var shownList: [SourceModel] = []
+    var shownList: [Articles] = []
 }

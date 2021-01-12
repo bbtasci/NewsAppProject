@@ -8,10 +8,10 @@
 import Foundation
 
 struct NewsApiModel: Codable {
-    var sources: [SourceModel] = []
+    var sources: [Sources] = []
 }
 
-struct SourceModel: Codable {
+struct Sources: Codable {
     var id: String?
     var name: String?
     var description: String?

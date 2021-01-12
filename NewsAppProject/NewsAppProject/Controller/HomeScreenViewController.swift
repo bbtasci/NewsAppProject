@@ -4,6 +4,7 @@
 //
 //  Created by Baris Berkin Tasci on 10.01.2021.
 //  API Key: aaafdfadc47b4bedbaaa8e8d9e49d25c
+//  API Key: d488a7d146f24615b5950054fd4040b3
 
 import UIKit
 import Alamofire
@@ -22,6 +23,8 @@ class HomeScreenViewController: BaseViewController {
     var categoryList = ["all categories", "business", "entertainment", "general", "health", "science", "sports", "technology"]
     var categoryPickerView = ToolbarPickerView()
     var newsList = NewsApiModel()
+    var APIKEY = "d488a7d146f24615b5950054fd4040b3"
+    // var APIKEY = "aaafdfadc47b4bedbaaa8e8d9e49d25c"
     
     // MARK: - LIFE CYCLE METHODS
     
@@ -32,14 +35,6 @@ class HomeScreenViewController: BaseViewController {
         getNews()
         addActivityIndicator()
     }
-    
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        prepareUI()
-//        addActivityIndicator()
-//        newsChannelsTableView.reloadData()
-//        getNews()
-//    }
     
     // MARK: - PREPARE UI
     
@@ -77,7 +72,7 @@ class HomeScreenViewController: BaseViewController {
     
     func getTurkeyNews() {
             activityView.startAnimating()
-            AF.request("https://newsapi.org/v2/top-headlines?country=tr&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+            AF.request("https://newsapi.org/v2/top-headlines?country=tr&apiKey=\(APIKEY)").responseJSON { response in
                 if let channelsData = response.data {
                     let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
                     self.newsList.sources = newsChannelsList.sources
@@ -92,7 +87,7 @@ class HomeScreenViewController: BaseViewController {
     func getNews() {
         if categoryTextField.text == "" || categoryTextField.text?.lowercased() == "all categories"{
             activityView.startAnimating()
-            AF.request("https://newsapi.org/v2/sources?language=en&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+            AF.request("https://newsapi.org/v2/sources?language=en&apiKey=\(APIKEY)").responseJSON { response in
                 if let channelsData = response.data {
                     let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
                     self.newsList.sources = newsChannelsList.sources
@@ -102,7 +97,7 @@ class HomeScreenViewController: BaseViewController {
             }
         } else {
             activityView.startAnimating()
-            AF.request("https://newsapi.org/v2/sources?language=en&category=\(categoryTextField.text?.lowercased() ?? "")&apiKey=aaafdfadc47b4bedbaaa8e8d9e49d25c").responseJSON { response in
+            AF.request("https://newsapi.org/v2/sources?language=en&category=\(categoryTextField.text?.lowercased() ?? "")&apiKey=\(APIKEY)").responseJSON { response in
                 if let channelsData = response.data {
                     let newsChannelsList = try! JSONDecoder().decode(NewsApiModel.self, from: channelsData)
                     self.newsList.sources = newsChannelsList.sources
@@ -151,8 +146,8 @@ extension HomeScreenViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let newsPageViewController = storyboard.instantiateViewController(identifier: "NewsPageViewController") as! NewsPageViewController
-        newsPageViewController.companyId = self.newsList.sources.first?.id ?? ""
-        newsPageViewController.companyName = self.newsList.sources.first?.name ?? ""
+        newsPageViewController.companyId = self.newsList.sources[indexPath.row].id ?? ""
+        newsPageViewController.companyName = self.newsList.sources[indexPath.row].name ?? ""
         self.navigationController?.pushViewController(newsPageViewController, animated: true)
     }
 }

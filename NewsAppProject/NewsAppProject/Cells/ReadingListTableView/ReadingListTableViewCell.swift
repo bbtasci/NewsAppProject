@@ -43,7 +43,7 @@ class ReadingListTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
     
-    func setListCell(item: ArticleModel) {
+    func setListCell(item: Articles) {
         let url = URL(string: item.urlToImage ?? "")
         let imageData = try? Data(contentsOf: url!)
         

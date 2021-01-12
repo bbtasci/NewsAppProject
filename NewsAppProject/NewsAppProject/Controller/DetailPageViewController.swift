@@ -8,7 +8,8 @@
 import UIKit
 
 class DetailPageViewController: BaseViewController {
-
+    @IBOutlet weak var descriptionBackgroundUIView: UIView!
+    
     @IBOutlet weak var newsTitleLabel: BaseLabel!
     @IBOutlet weak var newsImageView: UIImageView!
     @IBOutlet weak var newsAuthorLabel: BaseLabel!
@@ -34,9 +35,13 @@ class DetailPageViewController: BaseViewController {
         prepareLayers()
     }
     func prepareLayers() {
+        descriptionBackgroundUIView.prepareCornerRadius(radius: 5)
+        descriptionBackgroundUIView.backgroundColor = .lightGray
         
         newsImageView.layer.cornerRadius = 5
         newsImageView.layer.masksToBounds = true
+        newsImageView.layer.borderColor = UIColor.lightGray.cgColor
+        newsImageView.layer.borderWidth = 2
         
         newsTitleLabel.text = newsTitle
         newsTitleLabel.prepareLightGrayLabel()
@@ -48,7 +53,7 @@ class DetailPageViewController: BaseViewController {
         newsDateLabel.prepareLightGrayLabel()
         
         newsDescriptionLabel.text = newsDescription
-        newsDescriptionLabel.prepareLightGrayLabel()
+        newsDescriptionLabel.backgroundColor = .clear
     }
 
 }

@@ -25,7 +25,7 @@ class NewsChannelsTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func setCell(item: SourceModel) {
+    func setCell(item: Sources) {
         channelNameLabel.text = item.name
         channelDescriptionLabel.text = item.description
     }
